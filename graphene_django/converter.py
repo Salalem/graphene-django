@@ -353,7 +353,17 @@ def convert_field_to_djangomodel(field, registry=None):
                         # the default Django resolver
                         return fk_obj
 
-                    instance_from_get_node = _type.get_node(info, object_pk)
+                    # TODO: when using dataloader and trying to resolve the field,
+                    #   calling get_node will make unnecessary db call. Which make the
+                    #   use of a dataloader go for-granted.
+                    # instance_from_get_node = _type.get_node(info, object_pk)
+                    instance_from_get_node = None
+
+                    # TODO: remove temporary flag
+                    USING_DATALOADER = True
+
+                    if USING_DATALOADER:
+                        return resolver(root, info, **args)
 
                     if instance_from_get_node is None:
                         # no instance to return
